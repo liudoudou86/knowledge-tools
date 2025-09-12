@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>个人知识库工具</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1><i class="fas fa-book"></i> 个人知识库工具</h1>
+      </header>
+
+      <div class="tabs">
+        <button class="tab-button active" data-tab="knowledge">知识库</button>
+        <button class="tab-button" data-tab="tasks">任务待办</button>
+      </div>
+
+      <!-- 知识库管理 -->
+      <div id="knowledge-tab" class="tab-content active">
+        <div class="action-bar">
+          <button id="add-knowledge-btn" class="btn-primary">
+            <i class="fas fa-plus"></i> 添加知识
+          </button>
+          <input
+            type="text"
+            id="knowledge-search"
+            placeholder="搜索知识..."
+            class="search-input"
+          />
+          <select id="knowledge-category-filter" class="filter-select">
+            <option value="">所有类别</option>
+          </select>
+        </div>
+
+        <div id="knowledge-list" class="list-container">
+          <!-- 知识条目将通过JavaScript动态加载 -->
+        </div>
+      </div>
+
+      <!-- 任务待办 -->
+      <div id="tasks-tab" class="tab-content">
+        <div class="task-container">
+          <div class="task-input-container">
+            <input
+              type="text"
+              id="task-input"
+              placeholder="添加新的待办事项..."
+            />
+            <button id="add-task-btn">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="task-filters">
+            <button class="filter-btn active" data-filter="active">
+              进行中
+            </button>
+            <button class="filter-btn" data-filter="completed">已完成</button>
+          </div>
+
+          <div class="task-list" id="task-list">
+            <!-- 任务项会通过 JavaScript 动态添加 -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加/编辑知识模态框 -->
+    <div id="knowledge-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="knowledge-modal-title">添加知识</h2>
+        <form id="knowledge-form">
+          <input type="hidden" id="knowledge-id" />
+          <div class="form-group">
+            <label for="knowledge-title">标题</label>
+            <input type="text" id="knowledge-title" required />
+          </div>
+          <div class="form-group">
+            <label for="knowledge-content">内容</label>
+            <textarea id="knowledge-content" rows="6" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="knowledge-category">类别</label>
+            <input type="text" id="knowledge-category" />
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancel-knowledge">
+              取消
+            </button>
+            <button type="submit" class="btn-primary">保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 确认删除模态框 -->
+    <div id="confirm-modal" class="modal">
+      <div class="modal-content confirm-modal">
+        <h2>确认删除</h2>
+        <p id="confirm-message">您确定要删除此项吗？</p>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="cancel-delete">
+            取消
+          </button>
+          <button type="button" class="btn-danger" id="confirm-delete">
+            删除
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 查看知识详情模态框 -->
+    <div id="knowledge-detail-modal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 id="knowledge-detail-title"></h2>
+        <div class="knowledge-meta">
+          <span id="knowledge-detail-category"></span> •
+          <span id="knowledge-detail-date"></span>
+        </div>
+        <div
+          id="knowledge-detail-content"
+          style="margin-top: 20px; white-space: pre-wrap"
+        ></div>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
