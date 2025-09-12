@@ -59,8 +59,8 @@ def init_db():
                 content TEXT NOT NULL,
                 category TEXT,
                 tags TEXT,
-                created_date TEXT NOT NULL,
-                last_modified TEXT NOT NULL
+                create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                update_time DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
         cursor.execute("""
@@ -68,7 +68,9 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 content TEXT NOT NULL,
                 completed BOOLEAN DEFAULT 0,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                priority TEXT NOT NULL,
+                create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+                update_time DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
         conn.commit()
@@ -88,11 +90,11 @@ def get_all_knowledge():
             category = request.args.get("category")
             if category:
                 cursor.execute(
-                    "SELECT * FROM knowledge WHERE category = ? ORDER BY last_modified DESC",
+                    "SELECT * FROM knowledge WHERE category = ? ORDER BY update_time DESC",
                     (category,),
                 )
             else:
-                cursor.execute("SELECT * FROM knowledge ORDER BY last_modified DESC")
+                cursor.execute("SELECT * FROM knowledge ORDER BY update_time DESC")
             return jsonify([dict(row) for row in cursor.fetchall()])
     except Exception as e:
         print("Error fetching knowledge:", e)
@@ -107,7 +109,7 @@ def search_knowledge():
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT * FROM knowledge WHERE title LIKE ? OR content LIKE ? OR tags LIKE ? ORDER BY last_modified DESC",
+            "SELECT * FROM knowledge WHERE title LIKE ? OR content LIKE ? OR tags LIKE ? ORDER BY update_time DESC",
             (f"%{keyword}%", f"%{keyword}%", f"%{keyword}%"),
         )
         return jsonify([dict(row) for row in cursor.fetchall()])
@@ -125,9 +127,9 @@ def add_knowledge():
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        now = datetime.datetime.now().isoformat()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(
-            "INSERT INTO knowledge (title, content, category, tags, created_date, last_modified) VALUES (?, ?, ?, ?, ?, ?)",
+            "INSERT INTO knowledge (title, content, category, tags, create_time, update_time) VALUES (?, ?, ?, ?, ?, ?)",
             (title, content, category, tags, now, now),
         )
         conn.commit()
@@ -146,9 +148,9 @@ def update_knowledge(knowledge_id):
 
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        now = datetime.datetime.now().isoformat()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(
-            "UPDATE knowledge SET title = ?, content = ?, category = ?, tags = ?, last_modified = ? WHERE id = ?",
+            "UPDATE knowledge SET title = ?, content = ?, category = ?, tags = ?, update_time = ? WHERE id = ?",
             (title, content, category, tags, now, knowledge_id),
         )
         conn.commit()
@@ -170,7 +172,7 @@ def get_all_tasks():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM tasks ORDER BY created_at DESC")
+            cursor.execute("SELECT * FROM tasks ORDER BY create_time DESC")
             return jsonify([dict(row) for row in cursor.fetchall()])
     except Exception as e:
         print("Error fetching tasks:", e)
@@ -181,12 +183,15 @@ def get_all_tasks():
 def add_task():
     data = request.json
     content = data.get("content")
+    priority = data.get("priority", "")
     if not content:
         return jsonify({"error": "任务内容不能为空"}), 400
     with get_db_connection() as conn:
         cursor = conn.cursor()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         cursor.execute(
-            "INSERT INTO tasks (content, completed) VALUES (?, ?)", (content, False)
+            "INSERT INTO tasks (content, completed, priority, create_time, update_time) VALUES (?, ?, ?, ?, ?)",
+            (content, False, priority, now, now),
         )
         conn.commit()
         task_id = cursor.lastrowid
