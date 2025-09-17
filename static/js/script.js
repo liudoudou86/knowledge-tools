@@ -27,6 +27,16 @@ const formatDate = str =>
     day: '2-digit'
   })
 
+// 重置搜索和筛选
+function resetSearch() {
+  // 清空搜索输入框
+  document.getElementById('knowledge-search').value = ''
+  // 重置类别筛选为"所有类别"
+  document.getElementById('knowledge-category-filter').value = ''
+  // 重新加载所有知识条目
+  loadKnowledge()
+}
+
 /* ================= API 请求封装 ================= */
 async function apiRequest(url, options = {}) {
   const response = await fetch(url, {
@@ -337,6 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
     .addEventListener('change', e => {
       loadKnowledge(e.target.value)
     })
+  // 重置搜索和筛选
+  document.getElementById('reset-search-btn').addEventListener('click', () => {
+    resetSearch()
+  })
   // 知识库卡片按钮事件委托（查看/编辑/删除）
   cache.knowledgeList.addEventListener('click', e => {
     const card = e.target.closest('.knowledge-item')

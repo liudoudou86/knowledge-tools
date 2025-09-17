@@ -24,14 +24,12 @@ if __name__ == "__main__":
     window = webview.create_window(
         "个人知识库工具",
         "http://127.0.0.1:5000",
-        width=1366,
-        height=768,
+        maximized=True,
         resizable=True,
-        min_size=(800, 600),
+        min_size=(1024, 768),
         text_select=True,
         zoomable=True,
         frameless=False,
-        easy_drag=True,
     )
 
     webview.start()

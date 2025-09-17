@@ -12,6 +12,11 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename='e7.ico') }}"
+      type="image/x-icon"
+    />
   </head>
   <body>
     <div class="container">
@@ -39,6 +44,10 @@
           <select id="knowledge-category-filter" class="filter-select">
             <option value="">所有类别</option>
           </select>
+          <button id="reset-search-btn" class="btn-secondary">
+            <i class="fas fa-undo"></i>
+            重置
+          </button>
         </div>
 
         <div id="knowledge-list" class="list-container">
