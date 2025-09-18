@@ -68,7 +68,7 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 content TEXT NOT NULL,
                 completed BOOLEAN DEFAULT 0,
-                priority TEXT NOT NULL,
+                priority TEXT DEFAULT 'normal',
                 create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
                 update_time DATETIME DEFAULT CURRENT_TIMESTAMP
             )
@@ -172,7 +172,18 @@ def get_all_tasks():
     try:
         with get_db_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute("SELECT * FROM tasks ORDER BY create_time DESC")
+            # 按优先级排序：high > normal > low，然后按创建时间倒序
+            cursor.execute("""
+                SELECT * FROM tasks 
+                ORDER BY 
+                    CASE priority 
+                        WHEN 'high' THEN 1
+                        WHEN 'normal' THEN 2
+                        WHEN 'low' THEN 3
+                        ELSE 4
+                    END,
+                    create_time DESC
+            """)
             return jsonify([dict(row) for row in cursor.fetchall()])
     except Exception as e:
         print("Error fetching tasks:", e)

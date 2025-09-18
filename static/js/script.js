@@ -70,12 +70,28 @@ function renderTasks() {
         t.completed ? 'checked' : ''
       }>
       <span class="task-content">${t.content}</span>
+      <div class="task-meta">
+        <span class="priority-badge priority-${t.priority || 'normal'}">
+          ${getPriorityLabel(t.priority)}
+        </span>
+      </div>
       <div class="task-actions">
         <button class="task-delete-btn"><i class="fas fa-trash"></i></button>
       </div>
     </div>`
     )
     .join('')
+}
+
+function getPriorityLabel(priority) {
+  switch (priority) {
+    case 'high':
+      return '紧急'
+    case 'normal':
+      return '计划'
+    default:
+      return '延后'
+  }
 }
 
 function filterTasks() {
@@ -91,17 +107,21 @@ function filterTasks() {
 /* ---------- 增 / 删 / 改 ---------- */
 async function addTask() {
   const input = document.getElementById('task-input')
+  const prioritySelect = document.getElementById('task-priority')
   const content = input.value.trim()
   if (!content) return
 
   try {
-    const newTask = await apiRequest('/api/tasks', {
+    await apiRequest('/api/tasks', {
       method: 'POST',
-      body: JSON.stringify({ content })
+      body: JSON.stringify({
+        content,
+        priority: prioritySelect.value
+      })
     })
-    tasks.push(newTask)
     input.value = ''
-    renderTasks()
+    // 重新从服务器加载任务列表以确保数据最新
+    await loadTasks()
   } catch (e) {
     console.error('添加任务失败:', e)
   }

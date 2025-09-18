@@ -410,6 +410,7 @@ header h1 {
   background: #f8f9fa;
   border-radius: 4px;
   transition: all 0.3s;
+  gap: 12px;
 }
 
 .task-checkbox {
@@ -422,6 +423,14 @@ header h1 {
 .task-content {
   flex: 1;
   font-size: 16px;
+  min-width: 0; /* 允许内容收缩 */
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .task-item.completed .task-content {
@@ -441,6 +450,43 @@ header h1 {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+/* 优先级徽章样式 */
+.priority-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  margin-left: 10px;
+  font-weight: 500;
+}
+
+.priority-high {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.priority-normal {
+  background-color: #e3f2fd;
+  color: #1565c0;
+  border: 1px solid #bbdefb;
+}
+
+.priority-low {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+/* 优先级选择器样式 */
+.priority-select {
+  padding: 10px;
+  border: 2px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
 }
 
 /* 响应式设计 */
@@ -465,5 +511,13 @@ header h1 {
   .modal-content {
     width: 95%;
     margin: 10% auto;
+  }
+  
+  .task-input-container {
+    flex-direction: column;
+  }
+  
+  .priority-select {
+    margin-top: 10px;
   }
 }
