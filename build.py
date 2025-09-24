@@ -21,6 +21,9 @@ def build_app():
             "--add-data=static;static",  # 添加静态文件目录
             "--noconfirm",  # 覆盖输出目录
             "--clean",  # 清理临时文件
+            "--optimize=2",  # 字节码优化
+            "--strip",       # 去除调试信息
+            "--noupx",       # 禁用UPX压缩（可能更快启动）
         ]
     )
 

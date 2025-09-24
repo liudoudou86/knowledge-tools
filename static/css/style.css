@@ -337,6 +337,35 @@ header h1 {
   white-space: pre-wrap; /* 保留文本格式 */
   overflow-wrap: break-word; /* 长文本自动换行 */
   word-wrap: break-word; /* IE 支持 */
+  max-height: 400px; /* 设置最大高度 */
+  overflow-y: auto; /* 添加垂直滚动条 */
+  border: 1px solid #e0e0e0;
+}
+
+/* 知识详情模态框样式优化 */
+#knowledge-detail-modal .modal-content {
+  max-width: 800px; /* 增加模态框宽度 */
+  max-height: 80vh; /* 设置模态框最大高度 */
+  overflow: hidden; /* 隐藏模态框本身的溢出 */
+  display: flex;
+  flex-direction: column;
+}
+
+#knowledge-detail-modal .modal-content h2 {
+  margin-bottom: 10px;
+  flex-shrink: 0; /* 防止标题被压缩 */
+}
+
+#knowledge-detail-modal .knowledge-meta {
+  flex-shrink: 0; /* 防止元信息被压缩 */
+  margin-bottom: 15px;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+#knowledge-detail-modal #knowledge-detail-content {
+  flex: 1; /* 内容区域占据剩余空间 */
+  min-height: 200px; /* 设置最小高度 */
 }
 
 #knowledge-detail-title {
@@ -489,6 +518,58 @@ header h1 {
   background-color: white;
 }
 
+/* 加载动画样式 */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  backdrop-filter: blur(5px);
+}
+
+.loading-container {
+  text-align: center;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  width: 90%;
+}
+
+.loading-container .spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-container h2 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.loading-container p {
+  color: #7f8c8d;
+  margin: 0;
+  font-size: 1rem;
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .container {
@@ -519,5 +600,19 @@ header h1 {
   
   .priority-select {
     margin-top: 10px;
+  }
+  
+  .loading-container {
+    padding: 30px 20px;
+    margin: 20px;
+  }
+  
+  .loading-container .spinner {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .loading-container h2 {
+    font-size: 1.3rem;
   }
 }

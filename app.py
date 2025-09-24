@@ -2,6 +2,7 @@ import datetime
 import os
 import sqlite3
 import sys
+import threading
 from contextlib import contextmanager
 
 from flask import Flask, jsonify, render_template, request
@@ -77,8 +78,41 @@ def init_db():
     return new_db
 
 
-with app.app_context():
-    print("Created new database" if init_db() else "Using existing database")
+def init_db_async():
+    """异步初始化数据库"""
+    def _init():
+        result = init_db()
+        print("Created new database" if result else "Using existing database")
+        # 预加载一些常用数据到内存缓存
+        try:
+            with get_db_connection() as conn:
+                cursor = conn.cursor()
+                # 预检查表是否存在，加速后续查询
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='knowledge'")
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'")
+        except Exception as e:
+            print(f"数据库预加载失败: {e}")
+    
+    thread = threading.Thread(target=_init)
+    thread.daemon = True
+    thread.start()
+
+
+# ---------- 健康检查端点 ----------
+@app.route("/api/health")
+def health_check():
+    """健康检查端点，用于检测服务是否就绪"""
+    try:
+        # 简单检查数据库连接
+        with get_db_connection() as conn:
+            conn.execute("SELECT 1")
+        return jsonify({"status": "healthy", "message": "服务运行正常", "timestamp": datetime.datetime.now().isoformat()})
+    except Exception as e:
+        return jsonify({"status": "unhealthy", "message": str(e)}), 503
+
+
+# 异步初始化数据库（在服务启动前就开始）
+init_db_async()
 
 
 # ---------- 知识库 API ----------

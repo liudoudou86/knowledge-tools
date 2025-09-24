@@ -313,15 +313,63 @@ function closeModals() {
   document.querySelectorAll('.modal').forEach(m => (m.style.display = 'none'))
 }
 
-/* ================= 事件绑定 & 初始化 ================= */
-document.addEventListener('DOMContentLoaded', () => {
-  setupTabEvents()
+/* ================= 加载状态管理 ================= */
+let isFirstLoad = true
 
-  /* ---------- 任务 ---------- */
-  document.getElementById('add-task-btn').addEventListener('click', addTask)
-  document.getElementById('task-input').addEventListener('keypress', e => {
-    if (e.key === 'Enter') addTask()
+function showLoading() {
+  document.getElementById('loading-overlay').style.display = 'flex'
+}
+
+function hideLoading() {
+  document.getElementById('loading-overlay').style.display = 'none'
+}
+
+function checkServiceReady() {
+  return new Promise((resolve) => {
+    let retryCount = 0
+    const maxRetries = 30 // 最多重试30次，约15秒
+    
+    const checkInterval = setInterval(() => {
+      retryCount++
+      
+      // 使用更轻量的HEAD请求来检查服务状态
+      fetch('/api/health', { method: 'HEAD', timeout: 1000 })
+        .then(response => {
+          if (response.ok) {
+            clearInterval(checkInterval)
+            console.log(`服务就绪，重试次数: ${retryCount}`)
+            resolve(true)
+          }
+        })
+        .catch(() => {
+          // 服务还未就绪，继续等待
+          if (retryCount >= maxRetries) {
+            clearInterval(checkInterval)
+            console.error('服务启动超时')
+            resolve(false)
+          }
+        })
+    }, 500)
   })
+}
+
+/* ================= 事件绑定 & 初始化 ================= */
+document.addEventListener('DOMContentLoaded', async () => {
+  // 显示加载动画
+  showLoading()
+  
+  // 等待服务就绪
+  try {
+    await checkServiceReady()
+    
+    // 服务就绪后，加载数据
+    setupTabEvents()
+
+    /* ---------- 任务 ---------- */
+    document.getElementById('add-task-btn').addEventListener('click', addTask)
+    document.getElementById('task-input').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addTask()
+    })
   // 任务过滤器
   document.querySelectorAll('.filter-btn').forEach(btn => {
     btn.addEventListener('click', e => {
@@ -389,11 +437,37 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', closeModals)
   })
   window.addEventListener('click', e => {
-    if (e.target.classList.contains('modal')) closeModals()
+    // 只关闭非知识详情模态框
+    if (e.target.classList.contains('modal') && 
+        !e.target.id.includes('knowledge-detail')) {
+      closeModals()
+    }
   })
 
   /* ---------- 首次数据加载 ---------- */
-  loadKnowledge()
-  loadKnowledgeCategories()
+  // 只加载任务数据（通常较小），知识库数据按需加载
   loadTasks()
+
+  // 延迟加载知识库相关数据
+  setTimeout(() => {
+    if (document.getElementById('knowledge-tab').classList.contains('active')) {
+      loadKnowledge()
+      loadKnowledgeCategories()
+    }
+  }, 500)
+  
+  // 隐藏加载动画
+  hideLoading()
+  
+  } catch (error) {
+    console.error('服务启动失败:', error)
+    // 显示错误信息
+    document.getElementById('loading-overlay').innerHTML = `
+      <div class="loading-container">
+        <h2>服务启动失败</h2>
+        <p>请检查服务是否正常运行</p>
+        <button onclick="location.reload()" class="btn-primary">重新加载</button>
+      </div>
+    `
+  }
 })
