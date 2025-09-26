@@ -106,7 +106,9 @@ def start_tray_icon():
     global tray_icon
     # 创建托盘菜单
     menu = pystray.Menu(
-        pystray.MenuItem("显示窗口", show_window),
+        pystray.MenuItem(
+            "显示窗口", show_window, default=True
+        ),  # 设置为默认动作，双击时会触发
         pystray.MenuItem("退出", exit_app),
     )
 
