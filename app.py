@@ -74,12 +74,12 @@ def init_db():
                 update_time DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        conn.commit()
     return new_db
 
 
 def init_db_async():
     """异步初始化数据库"""
+
     def _init():
         result = init_db()
         print("Created new database" if result else "Using existing database")
@@ -88,11 +88,15 @@ def init_db_async():
             with get_db_connection() as conn:
                 cursor = conn.cursor()
                 # 预检查表是否存在，加速后续查询
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='knowledge'")
-                cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'")
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='knowledge'"
+                )
+                cursor.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'"
+                )
         except Exception as e:
             print(f"数据库预加载失败: {e}")
-    
+
     thread = threading.Thread(target=_init)
     thread.daemon = True
     thread.start()
@@ -106,7 +110,13 @@ def health_check():
         # 简单检查数据库连接
         with get_db_connection() as conn:
             conn.execute("SELECT 1")
-        return jsonify({"status": "healthy", "message": "服务运行正常", "timestamp": datetime.datetime.now().isoformat()})
+        return jsonify(
+            {
+                "status": "healthy",
+                "message": "服务运行正常",
+                "timestamp": datetime.datetime.now().isoformat(),
+            }
+        )
     except Exception as e:
         return jsonify({"status": "unhealthy", "message": str(e)}), 503
 

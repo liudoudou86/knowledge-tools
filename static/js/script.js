@@ -286,10 +286,68 @@ function searchKnowledge(keyword) {
 }
 
 /* ===================================================================
+                          随手记相关
+=================================================================== */
+let notesContent = ''
+
+/* -------------- 加载随手记 -------------- */
+async function loadNotes() {
+  // 临时模式：直接显示当前内容，不加载后端数据
+  document.getElementById('simple-notes-editor').value = notesContent
+  updateNotesStatus()
+}
+
+function saveNotes() {
+  // 临时模式：只更新本地变量，不保存到后端
+  notesContent = document.getElementById('simple-notes-editor').value
+  updateNotesStatus()
+}
+
+function clearNotes() {
+  if (confirm('确定清空随手记内容？')) {
+    notesContent = ''
+    document.getElementById('simple-notes-editor').value = ''
+    updateNotesStatus()
+  }
+}
+
+function updateNotesStatus() {
+  const statusElement = document.getElementById('notes-status')
+  const timestampElement = document.getElementById('notes-timestamp')
+  
+  statusElement.textContent = '临时模式'
+  statusElement.className = 'unsaved'
+  
+  if (notesContent.trim()) {
+    timestampElement.textContent = '内容已输入'
+  } else {
+    timestampElement.textContent = '暂无内容'
+  }
+}
+
+/* -------------- 简单文本编辑器功能 -------------- */
+function setupSimpleNotesEditor() {
+  const editor = document.getElementById('simple-notes-editor')
+  
+  // 设置为可编辑模式
+  editor.readOnly = false
+  editor.style.backgroundColor = '#ffffff'
+  editor.style.cursor = 'text'
+  
+  // 输入事件：自动保存到本地变量
+  editor.addEventListener('input', throttle(() => {
+    saveNotes()
+  }, 500))
+  
+  // 清空按钮
+  document.getElementById('clear-notes-btn').addEventListener('click', clearNotes)
+}
+
+/* ===================================================================
                       标签页 & 模态框 & 初始化
 =================================================================== */
 function setupTabEvents() {
-  const tabButtons = document.querySelectorAll('.tab-button')
+  const tabButtons = document.querySelectorAll('.tab-button-vertical')
   const tabContents = document.querySelectorAll('.tab-content')
 
   tabButtons.forEach(btn => {
@@ -304,6 +362,10 @@ function setupTabEvents() {
       if (tabId === 'knowledge') {
         loadKnowledge()
         loadKnowledgeCategories()
+      }
+      if (tabId === 'notes') {
+        loadNotes()
+        setupSimpleNotesEditor()
       }
     })
   })

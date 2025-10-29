@@ -24,13 +24,27 @@
         <h1><i class="fas fa-book"></i> 个人知识库工具</h1>
       </header>
 
-      <div class="tabs">
-        <button class="tab-button active" data-tab="knowledge">知识库</button>
-        <button class="tab-button" data-tab="tasks">任务待办</button>
-      </div>
+      <div class="main-layout">
+        <div class="sidebar">
+          <div class="tabs-vertical">
+            <button class="tab-button-vertical active" data-tab="knowledge">
+              <i class="fas fa-book"></i>
+              <span>知识库</span>
+            </button>
+            <button class="tab-button-vertical" data-tab="tasks">
+              <i class="fas fa-tasks"></i>
+              <span>任务待办</span>
+            </button>
+            <button class="tab-button-vertical" data-tab="notes">
+              <i class="fas fa-pen"></i>
+              <span>随手记</span>
+            </button>
+          </div>
+        </div>
 
-      <!-- 知识库管理 -->
-      <div id="knowledge-tab" class="tab-content active">
+        <div class="content-area">
+          <!-- 知识库管理 -->
+          <div id="knowledge-tab" class="tab-content active">
         <div class="action-bar">
           <button id="add-knowledge-btn" class="btn-primary">
             <i class="fas fa-plus"></i> 添加知识
@@ -84,6 +98,30 @@
           <div class="task-list" id="task-list">
             <!-- 任务项会通过 JavaScript 动态添加 -->
           </div>
+        </div>
+      </div>
+
+      <!-- 随手记 -->
+      <div id="notes-tab" class="tab-content">
+        <div class="notes-container">
+          <div class="notes-header">
+            <h2><i class="fas fa-pen"></i> 随手记</h2>
+            <div class="notes-actions">
+              <button id="clear-notes-btn" class="btn-secondary">
+                <i class="fas fa-trash"></i> 清空
+              </button>
+            </div>
+          </div>
+          <div class="simple-notes-container">
+            <textarea id="simple-notes-editor" class="simple-notes-textarea" 
+                      placeholder="在这里记录您的想法和笔记..."></textarea>
+          </div>
+          <div class="notes-status">
+            <span id="notes-status">未保存</span>
+            <span id="notes-timestamp"></span>
+          </div>
+        </div>
+      </div>
         </div>
       </div>
     </div>
