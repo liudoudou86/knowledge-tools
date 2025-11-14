@@ -314,33 +314,265 @@ function clearNotes() {
 function updateNotesStatus() {
   const statusElement = document.getElementById('notes-status')
   const timestampElement = document.getElementById('notes-timestamp')
-  
-  statusElement.textContent = '临时模式'
-  statusElement.className = 'unsaved'
-  
-  if (notesContent.trim()) {
-    timestampElement.textContent = '内容已输入'
+
+  // 检查是否在搜索状态
+  if (window.currentSearchTerm) {
+    const regex = new RegExp(escapeRegExp(window.currentSearchTerm), 'gi')
+    const matches = notesContent.match(regex)
+    const matchCount = matches ? matches.length : 0
+
+    statusElement.textContent = `找到 ${matchCount} 个匹配项`
+    statusElement.className = 'saved'
+    timestampElement.textContent = `搜索词: "${window.currentSearchTerm}"`
   } else {
-    timestampElement.textContent = '暂无内容'
+    statusElement.textContent = '临时模式'
+    statusElement.className = 'unsaved'
+
+    if (notesContent.trim()) {
+      timestampElement.textContent = '内容已输入'
+    } else {
+      timestampElement.textContent = '暂无内容'
+    }
   }
 }
 
 /* -------------- 简单文本编辑器功能 -------------- */
 function setupSimpleNotesEditor() {
   const editor = document.getElementById('simple-notes-editor')
-  
+
   // 设置为可编辑模式
   editor.readOnly = false
   editor.style.backgroundColor = '#ffffff'
   editor.style.cursor = 'text'
-  
+
   // 输入事件：自动保存到本地变量
   editor.addEventListener('input', throttle(() => {
     saveNotes()
   }, 500))
-  
+
   // 清空按钮
   document.getElementById('clear-notes-btn').addEventListener('click', clearNotes)
+
+  // Json格式化按钮
+  document.getElementById('json-format-btn').addEventListener('click', formatJson)
+
+  // Xml格式化按钮
+  document.getElementById('xml-format-btn').addEventListener('click', formatXml)
+
+  // 搜索功能
+  document.getElementById('notes-search-btn').addEventListener('click', searchNotes)
+  document.getElementById('clear-search-btn').addEventListener('click', clearSearch)
+  document.getElementById('notes-search-input').addEventListener('keypress', e => {
+    if (e.key === 'Enter') searchNotes()
+  })
+}
+
+/* -------------- 搜索功能 -------------- */
+function searchNotes() {
+  const searchInput = document.getElementById('notes-search-input')
+  const searchTerm = searchInput.value.trim()
+
+  if (!searchTerm) {
+    alert('请输入搜索内容')
+    return
+  }
+
+  const editor = document.getElementById('simple-notes-editor')
+  const content = editor.value
+
+  // 计算匹配数量
+  const regex = new RegExp(escapeRegExp(searchTerm), 'gi')
+  const matches = content.match(regex)
+  const matchCount = matches ? matches.length : 0
+
+  if (matchCount === 0) {
+    alert('未找到匹配内容')
+    return
+  }
+
+  // 在notes-status区域显示搜索结果
+  const statusElement = document.getElementById('notes-status')
+  const timestampElement = document.getElementById('notes-timestamp')
+
+  statusElement.textContent = `找到 ${matchCount} 个匹配项`
+  statusElement.className = 'saved'
+  timestampElement.textContent = `搜索词: "${searchTerm}"`
+
+  // 滚动到第一个匹配项
+  scrollToFirstMatch(editor, searchTerm)
+
+  // 保存搜索状态
+  window.currentSearchTerm = searchTerm
+}
+
+function highlightText(text, searchTerm) {
+  if (!searchTerm) return text
+
+  // 创建正则表达式，忽略大小写
+  const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi')
+
+  // 计算匹配数量
+  const matches = text.match(regex)
+  const matchCount = matches ? matches.length : 0
+
+  // 显示匹配信息
+  alert(`找到 ${matchCount} 个匹配项`)
+
+  // 由于textarea不能显示HTML高亮，我们返回原始文本
+  // 用户可以通过滚动查看匹配项
+  return text
+}
+
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function scrollToFirstMatch(editor, searchTerm) {
+  const content = editor.value
+  const index = content.toLowerCase().indexOf(searchTerm.toLowerCase())
+
+  if (index !== -1) {
+    // 计算行数和位置
+    const lines = content.substring(0, index).split('\n')
+    const lineNumber = lines.length - 1
+    const lineHeight = 24 // 假设每行高度为24px
+    const scrollTop = lineNumber * lineHeight
+
+    // 滚动到匹配位置
+    editor.scrollTop = Math.max(0, scrollTop - 100) // 稍微提前一点
+  }
+}
+
+function clearSearch() {
+  const editor = document.getElementById('simple-notes-editor')
+  const searchInput = document.getElementById('notes-search-input')
+
+  // 清空搜索框
+  searchInput.value = ''
+
+  // 清除搜索状态
+  window.currentSearchTerm = null
+
+  // 恢复状态显示
+  updateNotesStatus()
+
+  // 保存当前状态
+  saveNotes()
+}
+
+/* -------------- 格式化功能 -------------- */
+function formatJson() {
+  const editor = document.getElementById('simple-notes-editor')
+  const content = editor.value.trim()
+
+  if (!content) {
+    alert('请输入要格式化的内容')
+    return
+  }
+
+  try {
+    // 尝试解析JSON
+    const parsed = JSON.parse(content)
+    // 格式化JSON，使用2个空格缩进
+    const formatted = JSON.stringify(parsed, null, 2)
+    editor.value = formatted
+    saveNotes()
+  } catch (error) {
+    alert('JSON格式错误：' + error.message)
+  }
+}
+
+function formatXml() {
+  const editor = document.getElementById('simple-notes-editor')
+  const content = editor.value.trim()
+
+  if (!content) {
+    alert('请输入要格式化的内容')
+    return
+  }
+
+  try {
+    // 检查内容长度，避免处理过大的XML
+    if (content.length > 100000) {
+      alert('XML内容过长，建议分批处理')
+      return
+    }
+
+    // 简单的XML格式化函数
+    const formatted = formatXmlString(content)
+    editor.value = formatted
+    saveNotes()
+  } catch (error) {
+    console.error('XML格式化错误:', error)
+    alert('XML格式错误：' + error.message)
+  }
+}
+
+function formatXmlString(xml) {
+  try {
+    // 更安全的XML格式化方法
+    let formatted = ''
+    let indent = ''
+    const tab = '  '
+
+    // 使用更安全的方式分割标签
+    const regex = /(<[^>]+>)/g
+    const parts = xml.split(regex)
+
+    for (let i = 0; i < parts.length; i++) {
+      let part = parts[i].trim()
+      if (!part) continue
+
+      // 处理XML声明
+      if (part.startsWith('<?xml')) {
+        formatted += part + '\n'
+        continue
+      }
+
+      // 处理注释
+      if (part.startsWith('<!--')) {
+        formatted += indent + part + '\n'
+        continue
+      }
+
+      // 处理开始标签
+      if (part.startsWith('<') && !part.startsWith('</')) {
+        // 检查是否是自闭合标签
+        if (part.endsWith('/>') || part.includes('/>')) {
+          formatted += indent + part + '\n'
+        } else {
+          formatted += indent + part + '\n'
+          indent += tab
+        }
+      }
+      // 处理结束标签
+      else if (part.startsWith('</')) {
+        indent = indent.substring(tab.length)
+        formatted += indent + part + '\n'
+      }
+      // 处理文本内容（非标签内容）
+      else if (!part.startsWith('<') && !part.endsWith('>')) {
+        formatted += indent + part + '\n'
+      }
+    }
+
+    return formatted.trim()
+  } catch (error) {
+    // 如果复杂格式化失败，使用简单的美化方法
+    console.warn('XML格式化失败，使用简单方法:', error)
+    return simpleXmlFormat(xml)
+  }
+}
+
+function simpleXmlFormat(xml) {
+  // 简单的XML美化方法
+  return xml
+    .replace(/></g, '>\n<')
+    .replace(/\s*<\?xml[^>]*\?>\s*/g, '<?xml version="1.0" encoding="UTF-8"?>\n')
+    .replace(/(<[^/][^>]*>)(?!\s*<)/g, '$1\n')
+    .replace(/(<\/[^>]+>)/g, '$1\n')
+    .replace(/\n\s*\n/g, '\n')
+    .trim()
 }
 
 /* ===================================================================

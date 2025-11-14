@@ -58,9 +58,9 @@ def hide_window(icon, item):
 def exit_app(icon, item):
     """退出应用程序"""
     global window, tray_icon
-    
+
     print("正在关闭应用程序...")
-    
+
     # 1. 首先关闭托盘图标
     if tray_icon:
         try:
@@ -68,7 +68,7 @@ def exit_app(icon, item):
             print("托盘图标已关闭")
         except Exception as e:
             print(f"关闭托盘图标时出错: {e}")
-    
+
     # 2. 关闭WebView窗口
     if window:
         try:
@@ -76,7 +76,7 @@ def exit_app(icon, item):
             print("WebView窗口已关闭")
         except Exception as e:
             print(f"关闭WebView窗口时出错: {e}")
-    
+
     # 3. 强制退出（不等待Flask线程）
     print("应用程序关闭完成")
     os._exit(0)

@@ -12,7 +12,8 @@ body {
 }
 
 .container {
-  max-width: 1200px;
+  max-width: none;
+  width: 100%;
   margin: 0 auto;
   padding: 20px;
 }
@@ -32,7 +33,7 @@ header h1 {
   display: flex;
   gap: 30px;
   min-height: calc(100vh - 120px);
-  margin: 0 20px;
+  margin: 0;
 }
 
 .sidebar {
@@ -187,7 +188,7 @@ header h1 {
 
 .list-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
 }
 
@@ -440,8 +441,9 @@ header h1 {
 
 /* 任务清单样式 */
 .task-container {
-  max-width: 800px;
-  margin: 20px auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
   padding: 20px;
   background: #fff;
   border-radius: 8px;
@@ -585,8 +587,9 @@ header h1 {
 
 /* 随手记样式 */
 .notes-container {
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+  margin: 0;
   padding: 20px;
 }
 
@@ -602,6 +605,16 @@ header h1 {
 .notes-header h2 {
   color: #2c3e50;
   margin: 0;
+}
+
+.notes-search {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
 }
 
 .notes-actions {
@@ -628,6 +641,14 @@ header h1 {
   resize: vertical;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: white;
+}
+
+/* 搜索高亮样式 */
+.search-highlight {
+  background-color: #fff3cd;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-weight: bold;
 }
 
 .simple-notes-textarea:focus {
@@ -716,6 +737,60 @@ header h1 {
 }
 
 /* 响应式设计 */
+/* 超大屏幕优化 */
+@media (min-width: 1600px) {
+  .container {
+    padding: 20px 40px;
+  }
+
+  .main-layout {
+    gap: 40px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .content-area {
+    padding: 30px;
+  }
+
+  .task-container {
+    padding: 30px;
+  }
+
+  .notes-container {
+    padding: 30px;
+  }
+}
+
+/* 中等屏幕优化 */
+@media (max-width: 1200px) and (min-width: 769px) {
+  .container {
+    padding: 15px;
+  }
+
+  .main-layout {
+    gap: 20px;
+  }
+
+  .sidebar {
+    width: 160px;
+  }
+
+  .content-area {
+    padding: 20px;
+  }
+
+  .task-container {
+    padding: 20px;
+  }
+
+  .notes-container {
+    padding: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     padding: 10px;
@@ -750,8 +825,12 @@ header h1 {
     padding: 15px;
   }
 
-  .list-container {
-    grid-template-columns: 1fr;
+  .task-container {
+    padding: 15px;
+  }
+
+  .notes-container {
+    padding: 15px;
   }
 
   .action-bar {
@@ -763,25 +842,25 @@ header h1 {
     width: 95%;
     margin: 10% auto;
   }
-  
+
   .task-input-container {
     flex-direction: column;
   }
-  
+
   .priority-select {
     margin-top: 10px;
   }
-  
+
   .loading-container {
     padding: 30px 20px;
     margin: 20px;
   }
-  
+
   .loading-container .spinner {
     width: 50px;
     height: 50px;
   }
-  
+
   .loading-container h2 {
     font-size: 1.3rem;
   }
